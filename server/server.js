@@ -1,5 +1,7 @@
 require("./config/config");
-var nodemailer = require("nodemailer");
+const nodemailer = require("nodemailer");
+const empty = require('is-empty');
+const cors = require('cors')
 
 const express = require("express");
 const app = express();
@@ -12,18 +14,21 @@ app.use(bodyParser.urlencoded({ extended: false }));
 // parse application/json
 app.use(bodyParser.json());
 
-//router.post('/email', EmailCtrl.sendEmail);
-
-// app.post('/email', EmailCtrl.sendEmail);
+app.use(cors())
 
 app.post("/email", function(request, response) {
-  let body = request.body;
 
+  if(empty(request.body)){
+    response.status(400).send("Revise todos los campos")
+    return;
+  }
+
+  let body = request.body;
   // Definimos el transporter
   let transporter = nodemailer.createTransport({
     host: "mail.quitec.com.ec",
     port: 25,
-    secure: false, //true for 465 port, false for other ports
+    secure: false,
     auth: {
       user: "sysalert@quitec.com.ec",
       pass: "Systemquitec1_"
@@ -32,9 +37,9 @@ app.post("/email", function(request, response) {
 
   // Definimos el email
   var mailOptions = {
-    from: "SYSAlert Origentes",
-    to: "info@origenesculinarios.org, info@quitec.com.ec",
-    subject: "Asunto",
+    from: 'SYSAlert Quitec <sysalert@quitec.com.ec>',
+    to: "datacenter@quitec.com.ec",
+    subject: "Registro Origenes",
     html: ` 
     <dl>
     <dt><strong>Instituto</strong></dt>
@@ -71,19 +76,13 @@ app.post("/email", function(request, response) {
   `
   };
 
-  // Enviamos el email
-  transporter.sendMail(mailOptions, function(error, info) {
-    if (error) {
-      console.log(error);
-      response.send(500, err.message);
-    } else {
-      console.log("Email sent");
-      response.status(200).jsonp(req.body);
+  transporter.sendMail(mailOptions, function(err, info) {
+    if (err){
+      response.sendStatus(400).send("No se ha podido enviar el registro.")
+      return;
     }
+    response.sendStatus(200).send("Se ha enviar el registro correctamente.")
   });
-
-  response.send('Email enviado');
-
 });
 
 app.listen(process.env.PORT, () => {
