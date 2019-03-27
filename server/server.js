@@ -38,7 +38,7 @@ app.post("/email", function(request, response) {
   // Definimos el email
   var mailOptions = {
     from: 'SYSAlert Quitec <sysalert@quitec.com.ec>',
-    to: "datacenter@quitec.com.ec",
+    to: "info@origenesculinarios.org, sysalert@quitec.com.ec",
     subject: "Registro Origenes",
     html: ` 
     <dl>
